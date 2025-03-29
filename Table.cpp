@@ -32,7 +32,7 @@ void Table::stop() {
 // Displays the current state of each philosopher
 void Table::printStates() const {
     for (int i = 0; i < NUM_PHILOSOPHERS; i++) {
-        std::cout << "Filozof " << i << ": " << philosophers[i]->getState() << "\n";
+        std::cout << "Filozof " << i << ": " << philosophers[i]->getStatus() << "\n";
     }
-    std::cout << "---------------------\n";
+    std::cout << "------------------------------------------\n";
 }

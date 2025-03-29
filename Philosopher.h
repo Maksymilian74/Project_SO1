@@ -19,7 +19,7 @@ public:
     void stop();
 
     // Returns current state
-    std::string getState() const;
+     std::string getStatus() const;
 private:
     // Thread function
     void run();
@@ -32,6 +32,9 @@ private:
     std::atomic<bool> running; // flag to control thread loop
     std::string state; // current activity
     mutable std::mutex stateMutex; // protects access to 'state' in multithreaded context
+    int mealsEaten = 0; // number of times the philosopher has eaten
+    bool hasLeft = false; // true if the philosopher currently holds the left chopstick
+    bool hasRight = false; // true if the philosopher currently holds the right chopstick
 };
 
 #endif

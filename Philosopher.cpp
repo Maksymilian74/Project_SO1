@@ -2,6 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <iomanip>
 
 // Constructor
 Philosopher::Philosopher(int id, Chopstick& left, Chopstick& right, int strategy)
@@ -20,9 +21,20 @@ void Philosopher::stop() {
 }
 
 // Returns current state
-std::string Philosopher::getState() const {
+std::string Philosopher::getStatus() const {
     std::lock_guard<std::mutex> lock(stateMutex);
-    return state;
+
+    char l = hasLeft ? '|' : '_';
+    char r = hasRight ? '|' : '_';
+
+    std::ostringstream oss;
+    oss << std::left
+        << std::setw(5) << state
+        << ", L: " << l
+        << ", P: " << r
+        << ", Posilki: " << std::setw(3) << mealsEaten;
+
+    return oss.str();
 }
 
 // Main philosopher loop
@@ -40,28 +52,28 @@ void Philosopher::run() {
 
         switch (strategy) {
             case 1: // Deadlock
-                right.pickUp(id);
-                left.pickUp(id);
+                right.pickUp(id); hasRight = true;
+                left.pickUp(id); hasLeft = true;
                 break;
 
             case 2: // Starvation
                 if (rand() % 2 == 0) {
-                    left.pickUp(id);
-                    right.pickUp(id);
+                    left.pickUp(id); hasLeft = true;
+                    right.pickUp(id); hasRight = true;
                 } else {
-                    right.pickUp(id);
-                    left.pickUp(id);
+                    right.pickUp(id); hasRight = true;
+                    left.pickUp(id); hasLeft = true;
                 }
                 break;
 
             case 3: // Fair
             default:
                 if (id == 0) {
-                    left.pickUp(id);
-                    right.pickUp(id);
+                    left.pickUp(id); hasLeft = true;
+                    right.pickUp(id); hasRight = true;
                 } else {
-                    right.pickUp(id);
-                    left.pickUp(id);
+                    right.pickUp(id); hasRight = true;
+                    left.pickUp(id); hasLeft = true;
                 }
                 break;
         }
@@ -72,11 +84,12 @@ void Philosopher::run() {
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(eatDist(gen)));
 
-        left.putDown();
-        right.putDown();
+        left.putDown(); hasLeft = false;
+        right.putDown(); hasRight = false;
 
         {
             std::lock_guard<std::mutex> lock(stateMutex);
+            mealsEaten++;
             state = "Mysli";
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(thinkDist(gen)));
