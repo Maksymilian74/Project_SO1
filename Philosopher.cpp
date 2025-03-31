@@ -53,17 +53,18 @@ void Philosopher::run() {
         switch (strategy) {
             case 1: // Deadlock
                 right.pickUp(id); hasRight = true;
+                std::this_thread::sleep_for(std::chrono::microseconds(1000));
                 left.pickUp(id); hasLeft = true;
                 break;
 
             case 2: // Starvation
-                if (rand() % 2 == 0) {
-                    left.pickUp(id); hasLeft = true;
-                    right.pickUp(id); hasRight = true;
-                } else {
-                    right.pickUp(id); hasRight = true;
-                    left.pickUp(id); hasLeft = true;
+                if (id == 1) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(8000));
                 }
+
+                right.pickUp(id); hasRight = true;
+                left.pickUp(id); hasLeft = true;
+
                 break;
 
             case 3: // Fair
