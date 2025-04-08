@@ -6,7 +6,7 @@
 
 // Constructor
 Philosopher::Philosopher(int id, Chopstick& left, Chopstick& right, int strategy)
-        : id(id), left(left), right(right), strategy(strategy), running(false), state("Mysli") {}
+        : id(id), left(left), right(right), strategy(strategy), running(false), state("Czeka") {}
 
 // Starts philosopher thread
 void Philosopher::start() {
@@ -41,8 +41,15 @@ std::string Philosopher::getStatus() const {
 void Philosopher::run() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> eatDist(1000, 4000); // eating duration: 1-4s
-    std::uniform_int_distribution<> thinkDist(2000, 5000); // thinking duration: 2-5s
+    int eatMin = 1000, eatMax = 2000;
+    int thinkMin = 1000, thinkMax = 3000;
+
+    if (strategy == 2 && id == 1) {
+        thinkMin = 20000; thinkMax = 30000; // 20–30 s
+    }
+
+    std::uniform_int_distribution<> eatDist(eatMin, eatMax);
+    std::uniform_int_distribution<> thinkDist(thinkMin, thinkMax);
 
     while (running) {
         {
@@ -58,13 +65,8 @@ void Philosopher::run() {
                 break;
 
             case 2: // Starvation
-                if (id == 1) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(8000));
-                }
-
                 right.pickUp(id); hasRight = true;
                 left.pickUp(id); hasLeft = true;
-
                 break;
 
             case 3: // Fair
